@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36202.13 d17.14
+VisualStudioVersion = 17.14.36202.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClearServiceBusInitializer", "ClearServiceBusInitializer\ClearServiceBusInitializer.csproj", "{685C4502-910D-49D5-9C49-D76CC0F75F31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClearServiceBusInitializer.Tests", "ClearServiceBusInitializer.Tests\ClearServiceBusInitializer.Tests.csproj", "{A04D67AC-825A-47E3-AEC0-C127A7DF3CAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{685C4502-910D-49D5-9C49-D76CC0F75F31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{685C4502-910D-49D5-9C49-D76CC0F75F31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{685C4502-910D-49D5-9C49-D76CC0F75F31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A04D67AC-825A-47E3-AEC0-C127A7DF3CAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A04D67AC-825A-47E3-AEC0-C127A7DF3CAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A04D67AC-825A-47E3-AEC0-C127A7DF3CAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A04D67AC-825A-47E3-AEC0-C127A7DF3CAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

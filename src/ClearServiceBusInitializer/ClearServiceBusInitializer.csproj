@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<RootNamespace>Clear.ServiceBusInitializer</RootNamespace>
 
-		<Version>1.0.0</Version>
+		<Version>1.1.0</Version>
 		<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
