@@ -20,6 +20,25 @@ public record Subscription : EntityWithPrefix
         Options = options;
         filters.ForEach(filter => AddLabelFilter(filter));
     }
+    
+    public Subscription(
+        string name,
+        params List<Filter> filters
+    ) : base("sbs-", name)
+    {
+        Options = Option.CreateDefault();
+        filters.ForEach(filter => AddFilter(filter));
+    }
+
+    public Subscription(
+        string name,
+        Option options, 
+        params List<Filter> filters
+    ) : base("sbs-", name)
+    {
+        Options = options;
+        filters.ForEach(filter => AddFilter(filter));
+    }
 
     public List<Filter> Filters { get; } = [];
     public Option Options { get; }
@@ -27,6 +46,12 @@ public record Subscription : EntityWithPrefix
     public Subscription AddLabelFilter(string name)
     {
         Filters.Add(Filter.CreateLabel(name));
+        return this;
+    }
+
+    public Subscription AddFilter(Filter filter)
+    {
+        Filters.Add(filter);
         return this;
     }
 

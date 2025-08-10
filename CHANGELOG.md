@@ -1,5 +1,49 @@
 # Changelog
 
+## [1.2.0] - 2025-08-10
+### Added
+- **Enhanced Filter API**: Added new `Filter.Create` methods for custom SQL filters
+  - `Filter.Create(string name, string key, string value)` for string-based filters
+  - `Filter.Create(string name, string key, int value)` for integer-based filters
+  - Provides more flexibility for creating custom SQL expressions beyond label filters
+
+- **Direct Filter Support for Subscriptions**: Added new constructor overloads for `Subscription` class
+  - `Subscription(string name, params List<Filter> filters)` for direct filter object usage
+  - `Subscription(string name, Option options, params List<Filter> filters)` with custom options
+  - Enables complex filtering scenarios with custom SQL expressions
+
+- **Enhanced Topic Subscription Methods**: Added new `AddSubscription` overloads to `Topic` class
+  - `AddSubscription(string name, params List<Filter> filters)` for direct filter usage
+  - `AddSubscription(string name, Subscription.Option options, params List<Filter> filters)` with options
+  - Allows building sophisticated message filtering using custom SQL filters
+
+- **Improved Filter Flexibility**: Added `AddFilter(Filter filter)` method to `Subscription` class
+  - Complements existing `AddLabelFilter(string name)` method
+  - Supports adding pre-built Filter objects with custom SQL expressions
+
+### Enhanced
+- **Filter Ecosystem**: Complete support for both label-based and custom SQL filters
+- **API Consistency**: Uniform support for Filter objects across all relevant classes
+- **Developer Experience**: More intuitive API for complex filtering scenarios
+
+### Technical Improvements
+- **Backward Compatibility**: All existing APIs remain unchanged and fully supported
+- **Type Safety**: Strong typing for all new filter-related methods
+- **Fluent Interface**: Maintains fluent method chaining for all new APIs
+
+### Examples of New Features
+```csharp
+// Custom SQL filters using Filter.Create methods
+var priorityFilter = Filter.Create("HighPriority", "Priority", 5);
+var statusFilter = Filter.Create("ActiveStatus", "Status", "Active");
+
+// Direct filter usage in subscription constructors
+var subscription = new Subscription("priority-handler", priorityFilter, statusFilter);
+
+// Enhanced topic configuration with complex filters
+topic.AddSubscription("complex-handler", subscriptionOptions, priorityFilter, statusFilter);
+```
+
 ## [1.1.0] - 2025-01-20
 ### Added
 - **Comprehensive Test Suite**: Added extensive unit tests covering all project functionality

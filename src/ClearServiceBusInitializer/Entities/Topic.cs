@@ -29,6 +29,25 @@ public record Topic : EntityWithPrefix
         return this;
     }
 
+    public Topic AddSubscription(
+        string name, 
+        params List<Filter> filters
+    )
+    {
+        Subscriptions.Add(new Subscription(name, filters));
+        return this;
+    }
+
+    public Topic AddSubscription(
+        string name,
+        Subscription.Option options, 
+        params List<Filter> filters
+    )
+    {
+        Subscriptions.Add(new Subscription(name, options, filters));
+        return this;
+    }
+
     public record Option(
         TimeSpan DefaultTimeToLive, 
         TimeSpan? DuplicateDetectionWindow,
