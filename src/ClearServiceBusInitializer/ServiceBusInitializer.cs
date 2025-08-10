@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Clear.ServiceBusInitializer;
 
-public static class ServiceBusSetupExtensions
+public static class ServiceBusInitializer
 {
     public static IServiceCollection AddServiceBusContext<T>(this IServiceCollection services, string connectionString) where T : class, IServiceBusContext
     {
@@ -29,15 +29,33 @@ public static class ServiceBusSetupExtensions
         return builder;
     }
 
+    public static async Task CreateServiceBusResource(string connectionString,
+        ServiceBusResource serviceBusResource
+    )
+    {
+        await CreateServiceBusResource(
+            new ServiceBusAdministrationClient(connectionString), 
+            serviceBusResource
+        );
+    }
+
     private static async Task CreateServiceBusResource(
         ServiceBusAdministrationClient administrationClient,
         IServiceBusContext serviceBusContext
     )
     {
-        var provisioner = new ServiceBusProvisioner(administrationClient);
         var serviceBusResource = new ServiceBusResource(serviceBusContext.Name);
-
         serviceBusContext.BuildServiceBusResource(serviceBusResource);
+
+        await CreateServiceBusResource(administrationClient, serviceBusResource);
+    }
+
+    private static async Task CreateServiceBusResource(
+        ServiceBusAdministrationClient administrationClient,
+        ServiceBusResource serviceBusResource
+    )
+    {
+        var provisioner = new ServiceBusProvisioner(administrationClient);
 
         foreach (var topic in serviceBusResource.Topics)
         {
