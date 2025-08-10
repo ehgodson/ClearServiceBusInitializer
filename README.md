@@ -4,7 +4,7 @@
 [![.NET](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A lightweight, code-first Azure Service Bus provisioning tool designed for small teams to manage Service Bus resources across different environments. It ensures that your Service Bus queues, topics, subscriptions, and rules are in place before your application starts—just have your Service Bus connection string ready.
+A lightweight, code-first Azure Service Bus provisioning tool designed for small teams to manage Service Bus resources across different environments. It ensures that your Service Bus queues, topics, subscriptions, and rules are in place before your application startsï¿½just have your Service Bus connection string ready.
 
 ## Features
 
@@ -74,6 +74,37 @@ app.Run();
 
 That's it! Your Service Bus resources will be automatically created or updated when your application starts.
 
+## Enhanced Filtering (v1.2.0+)
+
+Version 1.2.0 introduces enhanced filtering capabilities with direct Filter object support:
+
+```csharp
+public class EnhancedServiceBusContext : IServiceBusContext
+{
+    public string Name => "Enhanced ServiceBus";
+
+    public void BuildServiceBusResource(ServiceBusResource serviceBusResource)
+    {
+        var topic = serviceBusResource.AddTopic("order-events");
+
+        // Traditional approach (still supported)
+        topic.AddSubscription("simple-handler", "OrderCreated", "OrderUpdated");
+
+        // Enhanced filtering with custom SQL filters
+        var priorityFilter = Filter.Create("HighPriority", "Priority", 5);
+        var statusFilter = Filter.Create("ActiveStatus", "Status", "Active");
+        
+        topic.AddSubscription("priority-handler", priorityFilter, statusFilter);
+
+        // Complex business rules
+        var vipFilter = Filter.Create("VIPCustomer", "CustomerTier", "VIP");
+        var highValueFilter = Filter.Create("HighValue", "Amount", 10000);
+        
+        topic.AddSubscription("vip-processor", vipFilter, highValueFilter);
+    }
+}
+```
+
 ## Advanced Configuration
 
 ### Custom Queue Configuration
@@ -124,6 +155,22 @@ topic.AddSubscription("session-handler", subscriptionOptions, "SessionRequired")
 ```csharp
 // Using custom SQL expressions for complex filtering
 subscription.Filters.Add(new Filter("CustomFilter", "MessageType = 'Order' AND Priority > 5"));
+
+// New in v1.2.0: Helper methods for common filter patterns
+var priorityFilter = Filter.Create("HighPriority", "Priority", 5);
+var statusFilter = Filter.Create("ActiveStatus", "Status", "Active");
+var labelFilter = Filter.CreateLabel("OrderCreated");
+
+// Direct filter usage in subscription constructors
+var subscription = new Subscription("priority-handler", priorityFilter, statusFilter);
+
+// Enhanced topic configuration with complex filters
+topic.AddSubscription("complex-handler", subscriptionOptions, priorityFilter, statusFilter);
+
+// Fluent filter building
+subscription.AddFilter(priorityFilter)
+           .AddFilter(statusFilter)
+           .AddLabelFilter("OrderCreated");
 ```
 
 ### Static Resource Provisioning

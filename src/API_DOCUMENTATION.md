@@ -252,14 +252,23 @@ public Topic(string name, Option? options = null) : base("sbt-", name)
 ```csharp
 public Topic AddSubscription(string name, params List<string> filters)
 public Topic AddSubscription(string name, Subscription.Option options, params List<string> filters)
+public Topic AddSubscription(string name, params List<Filter> filters)
+public Topic AddSubscription(string name, Subscription.Option options, params List<Filter> filters)
 ```
 
 Adds a subscription with filters to the topic.
 
 **Example:**
 ```csharp
+// Using string-based label filters
 topic.AddSubscription("order-handler", "OrderCreated", "OrderUpdated")
      .AddSubscription("audit-handler", auditOptions, "OrderCreated", "OrderDeleted");
+
+// Using Filter objects (v1.2.0+)
+var priorityFilter = Filter.Create("HighPriority", "Priority", 5);
+var statusFilter = Filter.Create("ActiveStatus", "Status", "Active");
+topic.AddSubscription("priority-handler", priorityFilter, statusFilter)
+     .AddSubscription("complex-handler", customOptions, priorityFilter, statusFilter);
 ```
 
 #### Topic.Option
@@ -337,6 +346,8 @@ public record Subscription : EntityWithPrefix
 ```csharp
 public Subscription(string name, params List<string> filters) : base("sbs-", name)
 public Subscription(string name, Option options, params List<string> filters) : base("sbs-", name)
+public Subscription(string name, params List<Filter> filters) : base("sbs-", name)
+public Subscription(string name, Option options, params List<Filter> filters) : base("sbs-", name)
 ```
 
 **Properties:**
@@ -357,6 +368,23 @@ Adds a label-based filter to the subscription.
 ```csharp
 subscription.AddLabelFilter("HighPriority")
            .AddLabelFilter("UrgentProcessing");
+```
+
+#### AddFilter
+```csharp
+public Subscription AddFilter(Filter filter)
+```
+
+Adds a custom filter to the subscription.
+
+**Example:**
+```csharp
+var priorityFilter = Filter.Create("HighPriority", "Priority", 5);
+var statusFilter = Filter.Create("ActiveStatus", "Status", "Active");
+
+subscription.AddFilter(priorityFilter)
+           .AddFilter(statusFilter)
+           .AddLabelFilter("OrderCreated");
 ```
 
 #### Subscription.Option
@@ -409,6 +437,32 @@ Creates a label-based filter.
 ```csharp
 var filter = Filter.CreateLabel("OrderCreated");
 // Creates: Name = "sbsr-ordercreated", SqlExpression = "sys.Label='OrderCreated'"
+```
+
+#### Create (String Value)
+```csharp
+public static Filter Create(string name, string key, string value)
+```
+
+Creates a custom SQL filter with a string value.
+
+**Example:**
+```csharp
+var filter = Filter.Create("ActiveStatus", "Status", "Active");
+// Creates: Name = "sbsr-activestatus", SqlExpression = "Status='Active'"
+```
+
+#### Create (Integer Value)
+```csharp
+public static Filter Create(string name, string key, int value)
+```
+
+Creates a custom SQL filter with an integer value.
+
+**Example:**
+```csharp
+var filter = Filter.Create("HighPriority", "Priority", 5);
+// Creates: Name = "sbsr-highpriority", SqlExpression = "Priority=5"
 ```
 
 ### EntityWithPrefix

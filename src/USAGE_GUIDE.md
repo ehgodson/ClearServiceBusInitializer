@@ -7,9 +7,10 @@ This guide provides comprehensive examples and patterns for using ClearServiceBu
 1. [Getting Started](#getting-started)
 2. [Basic Examples](#basic-examples)
 3. [Advanced Configuration](#advanced-configuration)
-4. [Real-World Scenarios](#real-world-scenarios)
-5. [Best Practices](#best-practices)
-6. [Troubleshooting](#troubleshooting)
+4. [Enhanced Filter Configuration (v1.2.0+)](#enhanced-filter-configuration-v120)
+5. [Real-World Scenarios](#real-world-scenarios)
+6. [Best Practices](#best-practices)
+7. [Troubleshooting](#troubleshooting)
 
 ## Getting Started
 
@@ -225,6 +226,85 @@ public class AdvancedServiceBusContext : IServiceBusContext
         serviceBusResource.AddQueue("dead-letter-queue");
     }
 }
+```
+
+### Enhanced Filter Configuration (v1.2.0+)
+
+ClearServiceBusInitializer v1.2.0 introduces enhanced filter capabilities with direct Filter object support:
+
+```csharp
+public class EnhancedFilterContext : IServiceBusContext
+{
+    public string Name => "Enhanced Filter Configuration";
+
+    public void BuildServiceBusResource(ServiceBusResource serviceBusResource)
+    {
+        var topic = serviceBusResource.AddTopic("order-processing");
+
+        // Traditional label-based filters (still supported)
+        topic.AddSubscription("label-based-handler", "OrderCreated", "OrderUpdated");
+
+        // Enhanced filters using Filter.Create methods
+        var priorityFilter = Filter.Create("HighPriority", "Priority", 5);
+        var statusFilter = Filter.Create("ActiveStatus", "Status", "Active");
+        var categoryFilter = Filter.Create("ElectronicsCategory", "Category", "Electronics");
+
+        // Direct filter usage in AddSubscription
+        topic.AddSubscription("priority-handler", priorityFilter, statusFilter);
+        
+        // Mixed filter types with custom options
+        var customOptions = new Subscription.Option(
+            DefaultTimeToLive: TimeSpan.FromDays(7),
+            DeadLetteringOnMessageExpiration: true,
+            LockDuration: TimeSpan.FromMinutes(2),
+            AutoDeleteOnIdle: null,
+            RequiresSession: false,
+            ForwardDeadLetterTo: null
+        );
+
+        topic.AddSubscription("mixed-handler", customOptions, priorityFilter, categoryFilter);
+
+        // Using new Subscription constructors with Filter objects
+        var complexFilters = new List<Filter>
+        {
+            Filter.Create("ExpensiveItems", "Price", 1000),
+            Filter.Create("PremiumCustomer", "CustomerTier", "Premium"),
+            Filter.CreateLabel("UrgentOrder")
+        };
+
+        var complexSubscription = new Subscription("complex-processor", customOptions, complexFilters);
+        topic.Subscriptions.Add(complexSubscription);
+
+        // Fluent filter building with AddFilter method
+        var fluentSubscription = new Subscription("fluent-processor", new List<string>());
+        fluentSubscription.AddFilter(priorityFilter)
+                         .AddFilter(statusFilter)
+                         .AddLabelFilter("OrderCreated")
+                         .AddFilter(Filter.Create("RegionalFilter", "Region", "US"));
+        
+        topic.Subscriptions.Add(fluentSubscription);
+    }
+}
+```
+
+**Advanced Filter Scenarios:**
+
+```csharp
+// Complex business logic filters
+var salesFilter = Filter.Create("HighValueSales", "Amount", 10000);
+var vipFilter = Filter.Create("VIPCustomer", "CustomerType", "VIP");
+var urgentFilter = Filter.CreateLabel("Urgent");
+
+// Different subscription patterns
+topic.AddSubscription("high-value-processor", salesFilter, vipFilter)
+     .AddSubscription("urgent-processor", urgentFilter)
+     .AddSubscription("vip-urgent-processor", vipFilter, urgentFilter);
+
+// Custom SQL expressions for complex scenarios
+var complexFilter = new Filter("ComplexBusinessRule", 
+    "(Priority > 3 AND Status = 'Active') OR (CustomerTier = 'Premium' AND Amount > 5000)");
+
+topic.AddSubscription("complex-business-processor", complexFilter);
 ```
 
 ### Environment-Specific Configuration
