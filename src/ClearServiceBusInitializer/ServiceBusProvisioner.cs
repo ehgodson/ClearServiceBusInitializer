@@ -149,4 +149,36 @@ public class ServiceBusProvisioner(ServiceBusAdministrationClient adminClient)
         var rule = new CreateRuleOptions(filter.Name, new SqlRuleFilter(filter.SqlExpression));
         await adminClient.CreateRuleAsync(topic.Name, subscription.Name, rule);
     }
+
+    public async Task DeleteTopicAsync(string topicName)
+    {
+        if (await adminClient.TopicExistsAsync(topicName))
+        {
+            await adminClient.DeleteTopicAsync(topicName);
+        }
+    }
+
+    public async Task DeleteQueueAsync(string queueName)
+    {
+        if (await adminClient.QueueExistsAsync(queueName))
+        {
+            await adminClient.DeleteQueueAsync(queueName);
+        }
+    }
+
+    public async Task DeleteSubscriptionAsync(string topicName, string subscriptionName)
+    {
+        if (await adminClient.SubscriptionExistsAsync(topicName, subscriptionName))
+        {
+            await adminClient.DeleteSubscriptionAsync(topicName, subscriptionName);
+        }
+    }
+
+    public async Task DeleteFilterAsync(string topicName, string subscriptionName, string filterName)
+    {
+        if (await adminClient.RuleExistsAsync(topicName, subscriptionName, filterName))
+        {
+            await adminClient.DeleteRuleAsync(topicName, subscriptionName, filterName);
+        }
+    }
 }

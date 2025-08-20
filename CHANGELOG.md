@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.3.0] - 2025-01-XX
+### Added
+- **Explicit Resource Deletion**: Added dedicated deletion methods to `ServiceBusProvisioner` class
+  - `DeleteTopicAsync(string topicName)` for deleting Service Bus topics
+  - `DeleteQueueAsync(string queueName)` for deleting Service Bus queues  
+  - `DeleteSubscriptionAsync(string topicName, string subscriptionName)` for deleting subscriptions
+  - `DeleteFilterAsync(string topicName, string subscriptionName, string filterName)` for deleting message filters
+
+- **Idempotent Operations**: All deletion methods are designed to be idempotent
+  - No errors thrown if resources don't exist
+  - Safe to call multiple times or in cleanup scenarios
+  - Provides consistent behavior across all deletion operations
+
+- **Cascading Deletions**: Topic deletion automatically removes associated resources
+  - Deleting a topic removes all its subscriptions and filters
+  - Follows Azure Service Bus deletion hierarchy
+
+- **Direct Invocation Support**: Deletion methods can be called independently
+  - No dependency on configuration context or resource definitions
+  - Direct integration with `ServiceBusAdministrationClient`
+  - Supports integration with existing cleanup workflows
+
+### Enhanced
+- **ServiceBusProvisioner Capabilities**: Extended beyond provisioning to include lifecycle management
+- **Documentation Coverage**: Comprehensive documentation for all deletion scenarios
+- **Usage Examples**: Real-world patterns for resource cleanup and management
+
+### Technical Improvements
+- **Backward Compatibility**: All existing provisioning APIs remain unchanged
+- **Error Handling**: Robust error handling with existence checks before deletion attempts
+- **Performance**: Efficient deletion operations with minimal Service Bus API calls
+
 ## [1.2.0] - 2025-08-10
 ### Added
 - **Enhanced Filter API**: Added new `Filter.Create` methods for custom SQL filters

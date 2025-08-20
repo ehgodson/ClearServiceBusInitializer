@@ -177,6 +177,67 @@ Creates or updates a Service Bus subscription and its filters.
 - Removes default rule and creates custom filters
 - Handles sessions, dead lettering, lock duration, and other settings
 
+##### DeleteTopicAsync
+```csharp
+public async Task DeleteTopicAsync(string topicName)
+```
+
+Deletes a Service Bus topic if it exists.
+
+**Parameters:**
+- `topicName`: The name of the topic to delete
+
+**Behavior:**
+- Checks if topic exists before attempting deletion
+- Deletes topic and all associated subscriptions and filters
+- Operation is idempotent - no error if topic doesn't exist
+
+##### DeleteQueueAsync
+```csharp
+public async Task DeleteQueueAsync(string queueName)
+```
+
+Deletes a Service Bus queue if it exists.
+
+**Parameters:**
+- `queueName`: The name of the queue to delete
+
+**Behavior:**
+- Checks if queue exists before attempting deletion
+- Operation is idempotent - no error if queue doesn't exist
+
+##### DeleteSubscriptionAsync
+```csharp
+public async Task DeleteSubscriptionAsync(string topicName, string subscriptionName)
+```
+
+Deletes a Service Bus subscription if it exists.
+
+**Parameters:**
+- `topicName`: The name of the parent topic
+- `subscriptionName`: The name of the subscription to delete
+
+**Behavior:**
+- Checks if subscription exists before attempting deletion
+- Deletes subscription and all associated filters
+- Operation is idempotent - no error if subscription doesn't exist
+
+##### DeleteFilterAsync
+```csharp
+public async Task DeleteFilterAsync(string topicName, string subscriptionName, string filterName)
+```
+
+Deletes a message filter/rule from a subscription if it exists.
+
+**Parameters:**
+- `topicName`: The name of the parent topic
+- `subscriptionName`: The name of the parent subscription
+- `filterName`: The name of the filter/rule to delete
+
+**Behavior:**
+- Checks if filter exists before attempting deletion
+- Operation is idempotent - no error if filter doesn't exist
+
 ## Entity Classes
 
 ### ServiceBusResource

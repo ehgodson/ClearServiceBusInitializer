@@ -10,7 +10,8 @@ This guide provides comprehensive examples and patterns for using ClearServiceBu
 4. [Enhanced Filter Configuration (v1.2.0+)](#enhanced-filter-configuration-v120)
 5. [Real-World Scenarios](#real-world-scenarios)
 6. [Best Practices](#best-practices)
-7. [Troubleshooting](#troubleshooting)
+7. [Resource Deletion (v1.3.0+)](#resource-deletion)
+8. [Troubleshooting](#troubleshooting)
 
 ## Getting Started
 
@@ -866,6 +867,156 @@ public async Task TestServiceBusProvisioning()
     await host.CreateServiceBusResource();
 }
 ```
+
+## Resource Deletion
+
+Starting from version 1.3.0, ClearServiceBusInitializer supports explicit deletion of Service Bus resources. These deletion methods are available directly on the `ServiceBusProvisioner` class and can be invoked independently from provisioning operations.
+
+### Basic Deletion Operations
+
+#### Deleting Topics
+
+```csharp
+public async Task DeleteServiceBusTopicExample()
+{
+    var connectionString = "your-service-bus-connection-string";
+    var adminClient = new ServiceBusAdministrationClient(connectionString);
+    var provisioner = new ServiceBusProvisioner(adminClient);
+
+    // Delete a specific topic (deletes all subscriptions and filters)
+    await provisioner.DeleteTopicAsync("sbt-order-events");
+    
+    // Operation is idempotent - no error if topic doesn't exist
+    await provisioner.DeleteTopicAsync("sbt-non-existent-topic");
+}
+```
+
+#### Deleting Queues
+
+```csharp
+public async Task DeleteServiceBusQueueExample()
+{
+    var connectionString = "your-service-bus-connection-string";
+    var adminClient = new ServiceBusAdministrationClient(connectionString);
+    var provisioner = new ServiceBusProvisioner(adminClient);
+
+    // Delete a specific queue
+    await provisioner.DeleteQueueAsync("sbq-order-processing");
+    
+    // Operation is idempotent - no error if queue doesn't exist
+    await provisioner.DeleteQueueAsync("sbq-non-existent-queue");
+}
+```
+
+#### Deleting Subscriptions
+
+```csharp
+public async Task DeleteServiceBusSubscriptionExample()
+{
+    var connectionString = "your-service-bus-connection-string";
+    var adminClient = new ServiceBusAdministrationClient(connectionString);
+    var provisioner = new ServiceBusProvisioner(adminClient);
+
+    // Delete a specific subscription (deletes all associated filters)
+    await provisioner.DeleteSubscriptionAsync("sbt-order-events", "sbs-order-processor");
+    
+    // Operation is idempotent - no error if subscription doesn't exist
+    await provisioner.DeleteSubscriptionAsync("sbt-order-events", "sbs-non-existent-sub");
+}
+```
+
+#### Deleting Filters
+
+```csharp
+public async Task DeleteServiceBusFilterExample()
+{
+    var connectionString = "your-service-bus-connection-string";
+    var adminClient = new ServiceBusAdministrationClient(connectionString);
+    var provisioner = new ServiceBusProvisioner(adminClient);
+
+    // Delete a specific filter/rule from a subscription
+    await provisioner.DeleteFilterAsync("sbt-order-events", "sbs-order-processor", "sbsr-priority-filter");
+    
+    // Operation is idempotent - no error if filter doesn't exist
+    await provisioner.DeleteFilterAsync("sbt-order-events", "sbs-order-processor", "sbsr-non-existent-filter");
+}
+```
+
+### Bulk Deletion Operations
+
+```csharp
+public async Task BulkDeletionExample()
+{
+    var connectionString = "your-service-bus-connection-string";
+    var adminClient = new ServiceBusAdministrationClient(connectionString);
+    var provisioner = new ServiceBusProvisioner(adminClient);
+
+    // Delete multiple resources in sequence
+    var resourcesToDelete = new[]
+    {
+        "sbt-order-events",
+        "sbt-customer-events",
+        "sbt-inventory-events"
+    };
+
+    foreach (var topicName in resourcesToDelete)
+    {
+        await provisioner.DeleteTopicAsync(topicName);
+    }
+
+    var queuesToDelete = new[]
+    {
+        "sbq-order-processing",
+        "sbq-customer-processing",
+        "sbq-inventory-processing"
+    };
+
+    foreach (var queueName in queuesToDelete)
+    {
+        await provisioner.DeleteQueueAsync(queueName);
+    }
+}
+```
+
+### Integration with Dependency Injection
+
+```csharp
+public class ServiceBusCleanupService
+{
+    private readonly ServiceBusProvisioner _provisioner;
+
+    public ServiceBusCleanupService(ServiceBusProvisioner provisioner)
+    {
+        _provisioner = provisioner;
+    }
+
+    public async Task CleanupTestResourcesAsync()
+    {
+        // Clean up test topics
+        await _provisioner.DeleteTopicAsync("sbt-test-events");
+        await _provisioner.DeleteTopicAsync("sbt-integration-test-events");
+
+        // Clean up test queues  
+        await _provisioner.DeleteQueueAsync("sbq-test-processing");
+        await _provisioner.DeleteQueueAsync("sbq-integration-test-processing");
+    }
+
+    public async Task CleanupEnvironmentAsync(string environment)
+    {
+        // Environment-specific cleanup
+        await _provisioner.DeleteTopicAsync($"sbt-{environment}-events");
+        await _provisioner.DeleteQueueAsync($"sbq-{environment}-processing");
+    }
+}
+```
+
+### Important Notes
+
+- **Cascading Deletions**: Deleting a topic automatically deletes all its subscriptions and filters
+- **Idempotent Operations**: All deletion methods are idempotent - they won't throw errors if the resource doesn't exist
+- **No Automatic Deletion**: The library does not automatically delete resources based on configuration changes. Deletions must be explicitly requested
+- **Order Matters**: When cleaning up, delete in this order: filters → subscriptions → topics/queues
+- **Permissions Required**: Ensure your Service Bus connection string has "Manage" permissions for deletion operations
 
 ## Troubleshooting
 
