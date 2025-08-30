@@ -883,10 +883,17 @@ public async Task DeleteServiceBusTopicExample()
     var adminClient = new ServiceBusAdministrationClient(connectionString);
     var provisioner = new ServiceBusProvisioner(adminClient);
 
-    // Delete a specific topic (deletes all subscriptions and filters)
+    // Delete a single topic (deletes all subscriptions and filters)
     await provisioner.DeleteTopicAsync("sbt-order-events");
     
-    // Operation is idempotent - no error if topic doesn't exist
+    // Delete multiple topics in one call
+    await provisioner.DeleteTopicAsync(
+        "sbt-customer-events",
+        "sbt-inventory-events", 
+        "sbt-notification-events"
+    );
+    
+    // Operation is idempotent - no error if topics don't exist
     await provisioner.DeleteTopicAsync("sbt-non-existent-topic");
 }
 ```
@@ -900,10 +907,17 @@ public async Task DeleteServiceBusQueueExample()
     var adminClient = new ServiceBusAdministrationClient(connectionString);
     var provisioner = new ServiceBusProvisioner(adminClient);
 
-    // Delete a specific queue
+    // Delete a single queue
     await provisioner.DeleteQueueAsync("sbq-order-processing");
     
-    // Operation is idempotent - no error if queue doesn't exist
+    // Delete multiple queues in one call
+    await provisioner.DeleteQueueAsync(
+        "sbq-customer-processing",
+        "sbq-inventory-processing",
+        "sbq-notification-processing"
+    );
+    
+    // Operation is idempotent - no error if queues don't exist
     await provisioner.DeleteQueueAsync("sbq-non-existent-queue");
 }
 ```
@@ -917,10 +931,18 @@ public async Task DeleteServiceBusSubscriptionExample()
     var adminClient = new ServiceBusAdministrationClient(connectionString);
     var provisioner = new ServiceBusProvisioner(adminClient);
 
-    // Delete a specific subscription (deletes all associated filters)
+    // Delete a single subscription (deletes all associated filters)
     await provisioner.DeleteSubscriptionAsync("sbt-order-events", "sbs-order-processor");
     
-    // Operation is idempotent - no error if subscription doesn't exist
+    // Delete multiple subscriptions from the same topic in one call
+    await provisioner.DeleteSubscriptionAsync(
+        "sbt-order-events",
+        "sbs-email-processor",
+        "sbs-sms-processor",
+        "sbs-webhook-processor"
+    );
+    
+    // Operation is idempotent - no error if subscriptions don't exist
     await provisioner.DeleteSubscriptionAsync("sbt-order-events", "sbs-non-existent-sub");
 }
 ```
@@ -934,15 +956,26 @@ public async Task DeleteServiceBusFilterExample()
     var adminClient = new ServiceBusAdministrationClient(connectionString);
     var provisioner = new ServiceBusProvisioner(adminClient);
 
-    // Delete a specific filter/rule from a subscription
+    // Delete a single filter/rule from a subscription
     await provisioner.DeleteFilterAsync("sbt-order-events", "sbs-order-processor", "sbsr-priority-filter");
     
-    // Operation is idempotent - no error if filter doesn't exist
+    // Delete multiple filters from the same subscription in one call
+    await provisioner.DeleteFilterAsync(
+        "sbt-order-events",
+        "sbs-order-processor",
+        "sbsr-high-priority",
+        "sbsr-medium-priority",
+        "sbsr-low-priority"
+    );
+    
+    // Operation is idempotent - no error if filters don't exist
     await provisioner.DeleteFilterAsync("sbt-order-events", "sbs-order-processor", "sbsr-non-existent-filter");
 }
 ```
 
 ### Bulk Deletion Operations
+
+With version 1.3.0, all deletion methods support `params` arrays, allowing you to delete multiple resources in a single method call:
 
 ```csharp
 public async Task BulkDeletionExample()
@@ -951,30 +984,36 @@ public async Task BulkDeletionExample()
     var adminClient = new ServiceBusAdministrationClient(connectionString);
     var provisioner = new ServiceBusProvisioner(adminClient);
 
-    // Delete multiple resources in sequence
-    var resourcesToDelete = new[]
-    {
+    // Delete multiple topics in a single call
+    await provisioner.DeleteTopicAsync(
         "sbt-order-events",
-        "sbt-customer-events",
+        "sbt-customer-events", 
         "sbt-inventory-events"
-    };
+    );
 
-    foreach (var topicName in resourcesToDelete)
-    {
-        await provisioner.DeleteTopicAsync(topicName);
-    }
-
-    var queuesToDelete = new[]
-    {
+    // Delete multiple queues in a single call
+    await provisioner.DeleteQueueAsync(
         "sbq-order-processing",
         "sbq-customer-processing",
         "sbq-inventory-processing"
-    };
+    );
 
-    foreach (var queueName in queuesToDelete)
-    {
-        await provisioner.DeleteQueueAsync(queueName);
-    }
+    // Delete multiple subscriptions from the same topic
+    await provisioner.DeleteSubscriptionAsync(
+        "sbt-notification-events",
+        "sbs-email-processor",
+        "sbs-sms-processor", 
+        "sbs-push-processor"
+    );
+
+    // Delete multiple filters from the same subscription
+    await provisioner.DeleteFilterAsync(
+        "sbt-order-events",
+        "sbs-priority-processor",
+        "sbsr-high-priority",
+        "sbsr-medium-priority",
+        "sbsr-low-priority"
+    );
 }
 ```
 
@@ -992,20 +1031,42 @@ public class ServiceBusCleanupService
 
     public async Task CleanupTestResourcesAsync()
     {
-        // Clean up test topics
-        await _provisioner.DeleteTopicAsync("sbt-test-events");
-        await _provisioner.DeleteTopicAsync("sbt-integration-test-events");
+        // Clean up multiple test resources in single calls
+        await _provisioner.DeleteTopicAsync(
+            "sbt-test-events", 
+            "sbt-integration-test-events"
+        );
 
-        // Clean up test queues  
-        await _provisioner.DeleteQueueAsync("sbq-test-processing");
-        await _provisioner.DeleteQueueAsync("sbq-integration-test-processing");
+        await _provisioner.DeleteQueueAsync(
+            "sbq-test-processing", 
+            "sbq-integration-test-processing"
+        );
     }
 
     public async Task CleanupEnvironmentAsync(string environment)
     {
-        // Environment-specific cleanup
-        await _provisioner.DeleteTopicAsync($"sbt-{environment}-events");
-        await _provisioner.DeleteQueueAsync($"sbq-{environment}-processing");
+        // Environment-specific cleanup - single call for multiple resources
+        await _provisioner.DeleteTopicAsync(
+            $"sbt-{environment}-order-events",
+            $"sbt-{environment}-customer-events",
+            $"sbt-{environment}-inventory-events"
+        );
+        
+        await _provisioner.DeleteQueueAsync(
+            $"sbq-{environment}-order-processing",
+            $"sbq-{environment}-customer-processing"
+        );
+    }
+
+    public async Task CleanupSubscriptionsAsync(string topicName)
+    {
+        // Clean up all subscriptions for a topic before deleting the topic
+        await _provisioner.DeleteSubscriptionAsync(
+            topicName,
+            "sbs-email-processor",
+            "sbs-sms-processor",
+            "sbs-webhook-processor"
+        );
     }
 }
 ```

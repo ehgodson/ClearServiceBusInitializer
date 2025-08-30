@@ -1,5 +1,6 @@
 using Azure.Messaging.ServiceBus.Administration;
 using Clear.ServiceBusInitializer.Entities;
+using System;
 
 namespace Clear.ServiceBusInitializer.Tests;
 
@@ -198,8 +199,10 @@ public class ServiceBusProvisionerTests
 
         var parameters = method!.GetParameters();
         parameters.Should().HaveCount(1);
-        parameters[0].ParameterType.Should().Be<string>();
-        parameters[0].Name.Should().Be("topicName");
+        parameters[0].ParameterType.Should().Be<string[]>();
+        parameters[0].Name.Should().Be("topicNames");
+        // Verify it's a params parameter
+        parameters[0].GetCustomAttributes(typeof(ParamArrayAttribute), false).Should().NotBeEmpty();
     }
 
     [Fact]
@@ -216,8 +219,10 @@ public class ServiceBusProvisionerTests
 
         var parameters = method!.GetParameters();
         parameters.Should().HaveCount(1);
-        parameters[0].ParameterType.Should().Be<string>();
-        parameters[0].Name.Should().Be("queueName");
+        parameters[0].ParameterType.Should().Be<string[]>();
+        parameters[0].Name.Should().Be("queueNames");
+        // Verify it's a params parameter
+        parameters[0].GetCustomAttributes(typeof(ParamArrayAttribute), false).Should().NotBeEmpty();
     }
 
     [Fact]
@@ -236,8 +241,10 @@ public class ServiceBusProvisionerTests
         parameters.Should().HaveCount(2);
         parameters[0].ParameterType.Should().Be<string>();
         parameters[0].Name.Should().Be("topicName");
-        parameters[1].ParameterType.Should().Be<string>();
-        parameters[1].Name.Should().Be("subscriptionName");
+        parameters[1].ParameterType.Should().Be<string[]>();
+        parameters[1].Name.Should().Be("subscriptionNames");
+        // Verify the second parameter is a params parameter
+        parameters[1].GetCustomAttributes(typeof(ParamArrayAttribute), false).Should().NotBeEmpty();
     }
 
     [Fact]
@@ -258,8 +265,10 @@ public class ServiceBusProvisionerTests
         parameters[0].Name.Should().Be("topicName");
         parameters[1].ParameterType.Should().Be<string>();
         parameters[1].Name.Should().Be("subscriptionName");
-        parameters[2].ParameterType.Should().Be<string>();
-        parameters[2].Name.Should().Be("filterName");
+        parameters[2].ParameterType.Should().Be<string[]>();
+        parameters[2].Name.Should().Be("filterNames");
+        // Verify the third parameter is a params parameter
+        parameters[2].GetCustomAttributes(typeof(ParamArrayAttribute), false).Should().NotBeEmpty();
     }
 
     [Fact]
@@ -338,7 +347,7 @@ public class ServiceBusProvisionerTests
 
         var parameters = method!.GetParameters();
         parameters.Should().HaveCount(1);
-        parameters[0].ParameterType.Should().Be<string>();
+        parameters[0].ParameterType.Should().Be<string[]>();
     }
 
     [Theory]
@@ -357,7 +366,7 @@ public class ServiceBusProvisionerTests
 
         var parameters = method!.GetParameters();
         parameters.Should().HaveCount(1);
-        parameters[0].ParameterType.Should().Be<string>();
+        parameters[0].ParameterType.Should().Be<string[]>();
     }
 
     [Theory]
@@ -377,7 +386,7 @@ public class ServiceBusProvisionerTests
         var parameters = method!.GetParameters();
         parameters.Should().HaveCount(2);
         parameters[0].ParameterType.Should().Be<string>();
-        parameters[1].ParameterType.Should().Be<string>();
+        parameters[1].ParameterType.Should().Be<string[]>();
     }
 
     [Theory]
@@ -398,6 +407,6 @@ public class ServiceBusProvisionerTests
         parameters.Should().HaveCount(3);
         parameters[0].ParameterType.Should().Be<string>();
         parameters[1].ParameterType.Should().Be<string>();
-        parameters[2].ParameterType.Should().Be<string>();
+        parameters[2].ParameterType.Should().Be<string[]>();
     }
 }

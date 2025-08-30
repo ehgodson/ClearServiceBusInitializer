@@ -179,64 +179,68 @@ Creates or updates a Service Bus subscription and its filters.
 
 ##### DeleteTopicAsync
 ```csharp
-public async Task DeleteTopicAsync(string topicName)
+public async Task DeleteTopicAsync(params string[] topicNames)
 ```
 
-Deletes a Service Bus topic if it exists.
+Deletes one or more Service Bus topics if they exist.
 
 **Parameters:**
-- `topicName`: The name of the topic to delete
+- `topicNames`: The names of the topics to delete
 
 **Behavior:**
-- Checks if topic exists before attempting deletion
-- Deletes topic and all associated subscriptions and filters
-- Operation is idempotent - no error if topic doesn't exist
+- Checks if each topic exists before attempting deletion
+- Deletes topics and all associated subscriptions and filters
+- Operation is idempotent - no error if topics don't exist
+- Supports deleting multiple topics in a single call
 
 ##### DeleteQueueAsync
 ```csharp
-public async Task DeleteQueueAsync(string queueName)
+public async Task DeleteQueueAsync(params string[] queueNames)
 ```
 
-Deletes a Service Bus queue if it exists.
+Deletes one or more Service Bus queues if they exist.
 
 **Parameters:**
-- `queueName`: The name of the queue to delete
+- `queueNames`: The names of the queues to delete
 
 **Behavior:**
-- Checks if queue exists before attempting deletion
-- Operation is idempotent - no error if queue doesn't exist
+- Checks if each queue exists before attempting deletion
+- Operation is idempotent - no error if queues don't exist
+- Supports deleting multiple queues in a single call
 
 ##### DeleteSubscriptionAsync
 ```csharp
-public async Task DeleteSubscriptionAsync(string topicName, string subscriptionName)
+public async Task DeleteSubscriptionAsync(string topicName, params string[] subscriptionNames)
 ```
 
-Deletes a Service Bus subscription if it exists.
+Deletes one or more Service Bus subscriptions if they exist.
 
 **Parameters:**
 - `topicName`: The name of the parent topic
-- `subscriptionName`: The name of the subscription to delete
+- `subscriptionNames`: The names of the subscriptions to delete
 
 **Behavior:**
-- Checks if subscription exists before attempting deletion
-- Deletes subscription and all associated filters
-- Operation is idempotent - no error if subscription doesn't exist
+- Checks if each subscription exists before attempting deletion
+- Deletes subscriptions and all associated filters
+- Operation is idempotent - no error if subscriptions don't exist
+- Supports deleting multiple subscriptions from the same topic in a single call
 
 ##### DeleteFilterAsync
 ```csharp
-public async Task DeleteFilterAsync(string topicName, string subscriptionName, string filterName)
+public async Task DeleteFilterAsync(string topicName, string subscriptionName, params string[] filterNames)
 ```
 
-Deletes a message filter/rule from a subscription if it exists.
+Deletes one or more message filters/rules from a subscription if they exist.
 
 **Parameters:**
 - `topicName`: The name of the parent topic
 - `subscriptionName`: The name of the parent subscription
-- `filterName`: The name of the filter/rule to delete
+- `filterNames`: The names of the filters/rules to delete
 
 **Behavior:**
-- Checks if filter exists before attempting deletion
-- Operation is idempotent - no error if filter doesn't exist
+- Checks if each filter exists before attempting deletion
+- Operation is idempotent - no error if filters don't exist
+- Supports deleting multiple filters from the same subscription in a single call
 
 ## Entity Classes
 
