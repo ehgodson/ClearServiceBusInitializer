@@ -150,35 +150,47 @@ public class ServiceBusProvisioner(ServiceBusAdministrationClient adminClient)
         await adminClient.CreateRuleAsync(topic.Name, subscription.Name, rule);
     }
 
-    public async Task DeleteTopicAsync(string topicName)
+    public async Task DeleteTopicAsync(params string[] topicNames)
     {
-        if (await adminClient.TopicExistsAsync(topicName))
+        foreach (var topicName in topicNames)
         {
-            await adminClient.DeleteTopicAsync(topicName);
+            if (await adminClient.TopicExistsAsync(topicName))
+            {
+                await adminClient.DeleteTopicAsync(topicName);
+            }
         }
     }
 
-    public async Task DeleteQueueAsync(string queueName)
+    public async Task DeleteQueueAsync(params string[] queueNames)
     {
-        if (await adminClient.QueueExistsAsync(queueName))
+        foreach (var queueName in queueNames)
         {
-            await adminClient.DeleteQueueAsync(queueName);
+            if (await adminClient.QueueExistsAsync(queueName))
+            {
+                await adminClient.DeleteQueueAsync(queueName);
+            }
         }
     }
 
-    public async Task DeleteSubscriptionAsync(string topicName, string subscriptionName)
+    public async Task DeleteSubscriptionAsync(string topicName, params string[] subscriptionNames)
     {
-        if (await adminClient.SubscriptionExistsAsync(topicName, subscriptionName))
+        foreach (var subscriptionName in subscriptionNames)
         {
-            await adminClient.DeleteSubscriptionAsync(topicName, subscriptionName);
+            if (await adminClient.SubscriptionExistsAsync(topicName, subscriptionName))
+            {
+                await adminClient.DeleteSubscriptionAsync(topicName, subscriptionName);
+            }
         }
     }
 
-    public async Task DeleteFilterAsync(string topicName, string subscriptionName, string filterName)
+    public async Task DeleteFilterAsync(string topicName, string subscriptionName, params string[] filterNames)
     {
-        if (await adminClient.RuleExistsAsync(topicName, subscriptionName, filterName))
+        foreach (var filterName in filterNames)
         {
-            await adminClient.DeleteRuleAsync(topicName, subscriptionName, filterName);
+            if (await adminClient.RuleExistsAsync(topicName, subscriptionName, filterName))
+            {
+                await adminClient.DeleteRuleAsync(topicName, subscriptionName, filterName);
+            }
         }
     }
 }
