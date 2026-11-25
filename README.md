@@ -1,5 +1,7 @@
 # ClearServiceBusInitializer
 
+[Publishing to NuGet](RELEASING.md)
+
 [![NuGet Version](https://img.shields.io/nuget/v/ClearServiceBusInitializer)](https://www.nuget.org/packages/ClearServiceBusInitializer)
 [![.NET](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
