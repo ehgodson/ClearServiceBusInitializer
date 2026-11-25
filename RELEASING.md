@@ -19,7 +19,7 @@ do not put them in source or workflow files.
 3. Check the run completes successfully, then verify the version on NuGet before
    updating downstream references.
 
-The workflow uses .NET 10 on Windows, restores and builds the solution in Release,
+The workflow uses .NET 11 on Windows, restores and builds the solution in Release,
 runs its automated tests, then packs the tested outputs without rebuilding.
 Build or test failure prevents publication. Only `ClearServiceBusInitializer` is packed.
 The packages are retained as a commit-labelled workflow artifact for seven days.
