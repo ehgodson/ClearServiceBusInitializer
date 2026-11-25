@@ -3,7 +3,7 @@
 [Publishing to NuGet](RELEASING.md)
 
 [![NuGet Version](https://img.shields.io/nuget/v/ClearServiceBusInitializer)](https://www.nuget.org/packages/ClearServiceBusInitializer)
-[![.NET](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-11.0-blue)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 A lightweight, code-first Azure Service Bus provisioning tool designed for small teams to manage Service Bus resources across different environments. It ensures that your Service Bus queues, topics, subscriptions, and rules are in place before your application starts�just have your Service Bus connection string ready.
